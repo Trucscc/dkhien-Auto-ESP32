@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP IoT APP</title>
+    <!--<link rel="icon" type="image/png" href="favicon.png">-->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+   
+    <style media="screen">
+      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
+      @media (max-width: 600px) {
+        body, #message { margin-top: 0; background: white; box-shadow: none; border-top: 16px; }
+      }
+      html {font-family: Verdana, Geneva, Tahoma, sans-serif, Arial; display: inline-block; text-align: center;}
+      h1 {font-size: 2.0rem; color: white;}
+      h2 {font-size: 20px;}
+      p {font-size: 20px;}
+      a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }  
+      body {max-width: 500px; margin:0px auto; padding-bottom: 10px;}
+      #authentication-bar{background-color:mintcream; padding-top: 8px; padding-bottom: 8px;}
+      #user-details{text-align: right; color: cadetblue;}
+        .content-sign-in {padding: 8px;} 
+        .form-elements-container{padding: 16px; width: 250px; margin: 0 auto;}
+      
+      #search-input {  /*width: 300px; height: 25px; */
+          width: 68%;
+          font-size: 0.8rem;
+          padding: 10px 5px;
+          border: 2px solid #ccc;
+          justify-content: center; align-items: center; border-radius: 3px; color: white;
+        }
+
+        .microphone {cursor: pointer; margin-left: 5px; position: relative ; right: 0;}
+        .microphone .recording-icon {
+            display: none;
+            width: 10px;
+            height: 10px;
+            background-color: #e22d2d;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite linear;
+        }
+        .microphone.recording .recording-icon {display: inline-block;}
+        .microphone.recording .fa-microphone {display: none;}
+        .topnav {overflow: hidden; background-color: #24cfdb; color: white; font-size: 1rem; padding: 10px;}
+        .card-grid1 {max-width: 420px; margin: 0 auto; display: grid ; grid-gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));}
+        .card-grid2 {max-width: 420px; margin: 0 auto; display: none ; grid-gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));}
+        .card-grid3 {max-width: 420px; margin: 0 auto; display: none ; grid-gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));}
+
+        .card {background-color: white; box-shadow: 2px 2px 8px 1px rgba(140,140,140,.5); padding-top: 5px; padding-bottom: 1px;}
+        .card-title {font-size: 1.2rem; color: #034078 ;}
+
+        .card1 { background-color: mintcream; box-shadow: 2px 2px 8px 1px  rgba(140,140,140,.5); padding-top: 5px; padding-bottom: 1px;}
+        .card2 {          
+          max-width: 1000px;  
+          background-color: mintcream; box-shadow: 2px 2px 8px 1px  rgba(140,140,140,.5); 
+        }
+
+        .switch {position: relative;  display: inline-block; width: 64px; height: 34px}
+        .switch1 { display: inline-block; }
+
+          input:checked +.slider {background-color: #2196F3}
+    	    input:checked +.slider:before {-webkit-transform: translateX(30px); -ms-transform: translateX(30px); transform: translateX(30px)}
+          input[type="range"] {
+            /*-webkit-appearance: none;*/
+            margin-right: 15px;
+            width: 200px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            background-size: 70% 100%;
+            background-repeat: no-repeat;
+          }
+        
+        .slider {position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 22px}
+        .slider:before {position: absolute; content: ""; height: 30px; width: 30px; left: 2px; bottom: 2px; background-color: #fff; -webkit-transition: .4s; transition: .4s; border-radius: 30px}
+
+        .button { background-color: green; border: none; color: white; padding: 6px 6px;text-decoration: none; font-size: 15px; margin: 2px; cursor: pointer; border-radius: 3px}
+        .button1 {background-color: rgb(8, 4, 247);color: white; padding: 6px 6px; font-size: 15px; margin: 0px; cursor: pointer; border-radius: 3px}
+        .button2 {background-color: rgb(255, 0, 0);color: white; padding: 6px 6px; font-size: 15px; margin: 1px; cursor: pointer;border-radius: 3px}        
+
+    </style>
+    <!-- update the version number as needed 8.10.0
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+
+    <!-- include only the Firebase features as you need -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+    <script>   // Thay tham số theo WEB-APP đã cấu hình do Firebase khỏi tạo tù biến 'firebaseConfig'
+      //import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";   //"https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"
+      const firebaseConfig = {
+          apiKey: "AIzaSyDmKKwksHZGiKw5gh4xNs4wcteKwNB-TZ8",
+          authDomain: "dkhien-auto-00001.firebaseapp.com",
+          databaseURL: "https://dkhien-auto-00001-default-rtdb.firebaseio.com",  
+          projectId: "dkhien-auto-00001",
+          storageBucket: "dkhien-auto-00001.appspot.com",
+          messagingSenderId: "407064485632",
+          appId: "1:407064485632:web:9c37e0d774e70839949de5",
+          measurementId: "G-ELV0PVSGY5"            
+      };
+                                                  // Tài khoản dịch vụ Firebase hiện đăng ký  :  firebase-adminsdk-p51yo@dkhien-auto-00001.iam.gserviceaccount.com
+                                                  // Dkhien-auto-00001-default-rtdb, có secret: Aabh0DzC0lBjaDsbeaMJpUvXQ3508lDQsSWGqyiF
+      firebase.initializeApp(firebaseConfig);     // const app = initializeApp(firebaseConfig); Thiết lập một ứng dụng firebase theo tham số đã lấy được
+
+      const auth  = firebase.auth();               // const auth = getAuth(app); Tạo mói hai biến 'auth" && 'db" để xác thực người dùng và lấy data (Make auth and database references
+      const db    = firebase.database();
+      //var storage = firebase.storage();          // Get a reference to the storage service, which is used to create references in your storage bucket
+      
+      
+      const uid    =  localStorage.getItem("uid");
+
+      setInterval("startTime()",1000);  
+      function startTime() {  
+          let today = new Date();
+          var now = parseInt(today.getTime()/1000) + (7*60*60) ; // Lấy giá trị thời gian hiện tại theo chuẩn quốc tế + 7*60*60(múi giờ VN) gán vào biến now, tính bằng giây;
+          const Thư =new Array(7);
+              Thư[0]="Chủ Nhật";
+              Thư[1]="Thứ Hai";
+              Thư[2]="Thứ Ba"; 
+              Thư[3]="Thứ Tư";
+              Thư[4]="Thứ Năm";
+              Thư[5]="Thứ Sáu";
+              Thư[6]="Thứ Bảy";
+              var Gio = today.getHours();
+              var Phut = today.getMinutes();
+              var Giay = today.getSeconds();
+            if(Gio<10){Gio="0"+Gio;}  ;
+            if(Phut<10){Phut="0"+Phut;}  ;   
+            if(Giay<10){Giay="0"+Giay;}  ;  
+              var day = Thư[today.getDay()];
+              var dd = today.getDate();
+              var mm = today.getMonth()+1;
+              var yyyy = today.getFullYear();
+          document.getElementById("clock").innerHTML = "Hôm nay: " +day+ ", " + dd + "/" + mm + "/" +yyyy+ ", " +Gio+ ":" +Phut+ ":"+Giay;
+              
+          
+        const uid =  localStorage.getItem("uid");
+        var esp_ = document.getElementById("esp_").value ;
+        var pwm_Val = document.getElementById("Value_PWM").value ;
+        var path1 = uid + "/board_" + document.getElementById("level").value + "/outputs/digital/";  
+        for(var j = 1; j <=localStorage.getItem("set_Lần_thứ"); j++){
+            for (var i = 0; i <34; i++){
+               if(i!=1 && i!=3 && i!=6 && i!=7 && i!=8 && i!=9 && i!=10 && i!=11 && i!=20 && i!=24 && i!=28 && i!=29 && i!=30 && i!=31){
+
+                  if(parseInt(localStorage.getItem("t_on_"+ i +"_"+ j)) == now ){
+                      localStorage.setItem("t_on_"+ i +"_"+ j, now );
+                      if(i<=25){
+                          firebase.database().ref().child(path1+i).set(parseInt(localStorage.getItem("Val_"+ i +"_"+ j)));
+                        }else{ 
+                          firebase.database().ref().child(path1+i).set(1); 
+                        }
+                      if ( parseInt(localStorage.getItem("day_"+ i +"_"+j)) >> 0  ){
+                          localStorage.setItem("t_on_"+ i +"_"+ j, (parseInt(localStorage.getItem("day_"+ i +"_"+j)) + parseInt(localStorage.getItem("t_on_"+ i +"_"+ j))));
+                        }else if( parseInt(localStorage.getItem("week_"+ i+"_"+j)) >> 0){
+                          localStorage.setItem("t_on_"+ i +"_"+ j, (parseInt(localStorage.getItem("week_"+ i+"_"+j)) + parseInt(localStorage.getItem("t_on_"+ i +"_"+ j))));
+                         }
+                        
+                   }else if(parseInt(localStorage.getItem("t_on_"+ i +"_"+ j)) < now ){
+                      localStorage.removeItem("t_on_"+ i +"_"+ j);
+                      localStorage.removeItem("Val_"+ i +"_"+ j);
+                    }
+
+                  if(parseInt(localStorage.getItem("t_off_"+ i +"_"+ j)) == now ){
+                      localStorage.setItem("t_off_"+ i +"_"+ j, now );
+                      firebase.database().ref().child(path1+i).set(0);
+                       if (parseInt(localStorage.getItem("day_"+ i +"_"+j)) >> 0){
+                            localStorage.setItem("t_off_"+ i +"_"+ j, (parseInt(localStorage.getItem("day_"+ i +"_"+j)) + parseInt(localStorage.getItem("t_off_"+ i +"_"+ j))));
+                        }else if(parseInt(localStorage.getItem("week_"+ i+"_"+j)) >> 0){
+                            localStorage.setItem("t_off_"+ i +"_"+ j, (parseInt(localStorage.getItem("week_"+ i+"_"+j)) + parseInt(localStorage.getItem("t_off_"+ i +"_"+ j))));
+                          }
+                   }else if(parseInt(localStorage.getItem("t_off_"+ i +"_"+ j)) < now ){
+                      localStorage.removeItem("t_off_"+ i +"_"+ j);
+                    }
+
+                  if(localStorage.getItem("day_"+ i +"_"+j) == 0 && localStorage.getItem("week_"+ i+"_"+j)== 0){
+                         localStorage.removeItem("day_"+ i +"_"+j);  localStorage.removeItem("week_"+ i+"_"+j);
+                   }else if (localStorage.getItem("day_"+ i +"_"+j) == 86400 && localStorage.getItem("week_"+ i+"_"+j)==0) {
+                         localStorage.removeItem("week_"+ i+"_"+j);
+                    }else if(localStorage.getItem("day_"+ i +"_"+j) == 0 && localStorage.getItem("week_"+ i+"_"+j)==604800){
+                         localStorage.removeItem("day_"+ i +"_"+j);
+                     }
+              }
+              
+            }
+          }
+          setInterval(trangthai(),1000);
+      }
+    </script>
+    <!--<script src="./app1.js" defer></script>-->
+    <script>
+      const vitri = document.getElementById("vitri");
+      function getLocation() {
+        try {
+          navigator.geolocation.getCurrentPosition(showPosition);
+        } catch {
+          vitri.innerHTML = err;
+        }
+      }
+      
+      function showPosition(position) {
+        vitri.innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
+      }
+    </script>
+</head>
+<body onload="startTime()">
+<!--TOP BAR-->
+    <div class="topnav">
+       <h1><i class="fas fa-lightbulb" style='color: rgb(0, 0, 151) ;'></i>&nbsp Au_Control IOs &nbsp<i class="fas fa-lightbulb" style='color: rgb(233, 24, 42) ;'></i></h1>
+    </div>
+    <!--AUTHENTICATION BAR (USER DETAILS/LOGOUT BUTTON)-->
+    <div id="authentication-bar" style="display: none;">
+      <!--<a href="dimTime.html"> DIM-TIMER</a>-->
+      <a href="html_temp/change_wifi.html">CHANGE WIFI-ACESS INTERNET</a>
+      <span id="user-details"></span>                               
+      <p><span id="authentication-status"></span>
+        Esp:&nbsp<input type="number" id="esp_" value="32" style="width: 36px;">&nbspBoard_No:&nbsp<input type="number" id="level" onblur="trangthai()" min="1" style="width: 34px;"> &nbsp<button type="button" onclick="trangthai()" style="background-color: mintcream ; border: 0px; border-radius: 4px;">&nbspRefresh</button>
+        <input type="text" id="ip_router" value="http://" style="width: 250px;" >&nbsp&nbsp&nbsp<button type="button" onclick="IP_address()" style="background-color: #24cfdb ; border: none; border-radius: 4px;">IP_SERVER</button>   
+        <div class="content-sign-in" id="content-sign-in" style="display: none;">
+            <div id="output">   
+              <input type="text" list="browsers" id="search-input" onblur="nhap_Text()" value="" placeholder="Nhập Text Or SpeechText" style=" color: rgb(8, 4, 247) ;">
+                <span class="microphone" >      
+                  <button type="button" onclick="StartListening()" style=" background-color: mintcream; border: none ;" ><i class="fas fa-microphone" style='font-size : 20px'></i></button> 
+                  <select id="Languages" name="Language" onchange="StartListening()" style=" background-color: mintcream; border: none ;">
+                    <option value="vi-VN" selected>VN</option>
+                    <option value="en-US">EN</option>
+                  </select >
+                </span>  
+                <datalist id="browsers">
+                      <option value="Tắt tất cả thiết bị điện">         </option>
+                      <option value="Bật tất cả công tắc điện">         </option>
+                      <option value="Bật toàn bộ công tắc bên phải">    </option>
+                      <option value="Tắt toàn bộ công tắc bên phải">    </option>
+                      <option value="Bật toàn bộ công tắc bên trái">    </option>
+                      <option value="Tắt toàn bộ công tắc bên trái">    </option>
+                      <option value="============================="></option>
+                      <option value="Mở toàn bộ bo mạch được lắp đặt">  </option>
+                      <option value="Đóng toàn bộ bo mạch được lắp đặt"></option>
+                      <option value="============================="></option>
+                      <option value="Bật công tắc 1">
+                      <option value="Tắt công tắc 1">
+                      <option value="Bật công tắc 2">
+                      <option value="Tắt công tắc 2">
+                      <option value="Bật công tắc ba">
+                      <option value="Tắt công tắc 3">
+                      <option value="Bật công tắc 4">
+                      <option value="Tắt công tắc 4">
+                      <option value="Bật công tắc 5">
+                      <option value="Tắt công tắc 5">
+                      <option value="Bật công tắc Sáu">
+                      <option value="Tắt công tắc 6">
+                      <option value="Bật công tắc 7">
+                      <option value="Tắt công tắc 7">
+                      <option value="Bật công tắc 8">
+                      <option value="Tắt công tắc 8">
+                      <option value="Bật công tắc 9">
+                      <option value="Tắt công tắc 9">
+                      <option value="Bật công tắc 10">
+                      <option value="Tắt công tắc 10">
+                      <option value="Bật công tắc 11">
+                      <option value="Tắt công tắc 11">
+                      <option value="Bật công tắc 12">
+                      <option value="Tắt công tắc 12">
+                      <option value="Bật công tắc 13">
+                      <option value="Tắt công tắc 13">
+                      <option value="Bật công tắc 14">
+                      <option value="Tắt công tắc 14">
+                      <option value="Bật công tắc 15">
+                      <option value="Tắt công tắc 15">
+                      <option value="Bật công tắc 16">
+                      <option value="Tắt công tắc 16">
+                      <option value="Bật công tắc 17">
+                      <option value="Tắt công tắc 17">
+                      <option value="Bật công tắc 18">
+                      <option value="Tắt công tắc 18">
+                      <option value="Bật công tắc 19">
+                      <option value="Tắt công tắc 19">
+                      <option value="============================="></option>        
+                      <option value="Turn on all">
+                      <option value="Turn off all">
+                        <option value="All right switches turn on">
+                          <option value="All right switches turn off">
+                            <option value="All left switches turn on">
+                              <option value="All left switches turn off">
+                                <option value="On relay one">
+                                  <option value="Off relay one">
+                                    <option value="On relay two">
+                                      <option value="Off relay two">
+                                        <option value="On relay three">
+                                          <option value="Off relay three">
+                                            <option value="On relay four">
+                                              <option value="Off relay four">
+                                                <option value="On relay five">
+                                                  <option value="Off relay five">
+                                                    <option value="On relay six">
+                                                      <option value="Off relay six">
+                                                        <option value="On relay seven">
+                                                          <option value="Off relay seven">
+                                                            <option value="On relay eight">
+                                                              <option value="Off relay eight">
+                                                                <option value="On relay nine">
+                                                                  <option value="Off relay nine">
+                                                                    <option value="On relay ten">
+                                                                      <option value="Off relay ten">
+                      <option value="Bật tivi phòng khách">         </option>
+                      <option value="Tắt tivi phòng khách">         </option>
+                      <option value="Bật đèn chùm phòng khách">     </option>
+                      <option value="Tắt đèn chùm phòng khách">     </option>
+                      <option value="Bật máy lạnh phòng khách">     </option>
+                      <option value="Tắt máy lạnh phòng khách">     </option>
+                      <option value="Mở rèm phòng khách">           </option>
+                      <option value="Đóng rèm phòng khách">         </option>
+                      <option value="Bật phòng ngủ gia chủ">        </option>
+                      <option value="Tắt phòng ngủ Gia Chủ">        </option>
+                      <option value="Tắt Phòng ngủ 1">              </option>
+                      <option value="Bật Phòng ngủ 1">              </option>
+                      <option value="Tắt phòng ngủ 2">              </option>
+                      <option value="Bật phòng ngủ 2">              </option>
+                      <option value="============================="></option>
+                      <option value="Khóa tất cả các cửa">          </option>
+                      <option value="Khóa hai cánh bên phải">       </option>
+                      <option value="Khóa hai cánh bên trái">       </option>
+                      <option value="Khóa cửa sau">                 </option>
+                      <option value="Khóa nắp ca po">               </option>
+                      <option value="Kính cửa trước kéo xuống">     </option>
+                      <option value="Kính cửa trước kéo lên">       </option>
+                      <option value="Kéo kính cửa phía sau xuống">  </option>
+                      <option value="Kéo kính cửa phía sau lên">    </option>
+                      <option value="Kéo kính cánh phải xuống">     </option>
+                      <option value="Kéo kính cánh phải lên">       </option>
+                      <option value="Kéo kính cánh trái xuống">     </option>
+                      <option value="Kéo kính cánh trái lên">       </option>
+                      <option value="Xoay kính chiếu hậu trái">     </option>
+                      <option value="Xoay kính chiếu hậu phải">     </option>
+                      <option value="============================="></option>
+                </datalist>
+            </div>
+            <br>
+            <!--CONTENT (SENSOR READINGS) -->
+            <div class="card-grid2"> 
+              <!--CARD FOR GPIO 0-->
+                 <div class="card">
+                   <p class="card-title">GPIO D3 State:<span id="stateD3" ></span>
+                   <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D3' ><span class='slider'></span></label></p>
+                 </div>
+
+              <!--CARD FOR GPIO 2-->
+                 <div class="card">
+                   <p class="card-title">GPIO D4 State:<span id="stateD4" ></span>
+                   <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D4' ><span class='slider'></span></label></p>
+                 </div>      
+            
+              <!--CARD FOR GPIO 4-->
+                 <div class="card">
+                   <p class="card-title">GPIO D2 State:<span id="stateD2" ></span>
+                   <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D2' ><span class='slider'></span></label></p>
+                 </div>
+            
+              <!--CARD FOR GPIO 5-->
+                 <div class="card">
+                  <p class="card-title">GPIO D1 State:<span id="stateD1" ></span>
+                  <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D1' ><span class='slider'></span></label></p>
+                 </div>
+
+              <!--CARD FOR GPIO 12-->
+                 <div class="card">
+                  <p class="card-title">GPIO D6 State:<span id="stateD6" ></span>
+                  <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D6' ><span class='slider'></span></label></p>
+                 </div>  
+                  
+              <!--CARD FOR GPIO 13-->
+                 <div class="card">
+                  <p class="card-title">GPIO D7 State:<span id="stateD7" ></span>
+                  <label class='switch'><input type='checkbox'  value="" onclick='Pin_(this)' id='D7' ><span class='slider'></span></label></p>
+                 </div>
+
+              <!--CARD FOR GPIO 14-->
+                  <div class="card">
+                    <p class="card-title">GPIO D5 State:<span id="stateD5" ></span>
+                    <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D5' ><span class='slider'></span></label></p>
+                  </div>
+
+              <!--CARD FOR GPIO 15-->
+                  <div class="card">
+                    <p class="card-title">GPIO D8 State:<span id="stateD8" ></span>
+                    <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='D8' ><span class='slider'></span></label></p>
+                  </div>
+            </div>
+
+            <!-- CARD FOR JOYTICK-->
+            <div class="card-grid3">
+                <div class="card" >
+                  <p class="card-title">
+
+                  </p>  
+                </div> 
+            </div>
+
+            <div class="card-grid1"> 
+                  <!--CARD FOR GPIO 0-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 0 State:<span id='state0' ></span>
+                      <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='0' ><span class='slider'></span></label><br>
+                      <span id='slider0' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh0' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div> 
+              
+                  <!-- CARD FOR GPIO 2-->
+                  <div class="card" >
+                    <p class="card-title"> GPIO 2 State:<span id='state2' ></span>
+                       <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='2' ><span class='slider'></span></label><br>
+                       <span id='slider2'></span>
+                       <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh2' min='2' max='100' step='1' value ='' ></label><br>
+                    </p>
+                  </div>
+                  
+                  <!--CARD FOR GPIO 4-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 4 State:<span id='state4' ></span>
+                       <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='4' ><span class='slider'></span></label><br>
+                       <span id='slider4'></span>
+                       <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh4' min='2' max='100' step='1' value ='' ></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 5-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 5 State:<span id='state5' ></span>
+                       <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='5' ><span class='slider'></span></label><br>
+                       <span id='slider5' ></span>
+                       <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh5' min='2' max='100' step='1' value ='' ></label><br>
+                    </p>                  
+                  </div>                  
+
+                  <!--CARD FOR GPIO 12-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 12 State:<span id='state12' ></span>
+                       <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='12' ><span class='slider'></span></label><br>
+                       <span id='slider12' ></span>
+                       <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh12' min='2' max='100' step='1' value ='' ></label><br>
+                    </p>                  
+                  </div>
+
+                  <!--CARD FOR GPIO 13-->
+                  <div class="card">
+                      <p class="card-title"> GPIO 13 State:<span id='state13' ></span>
+                      <label class='switch'><input type='checkbox'  value="" onclick='Pin_(this)' id='13' ><span class='slider'></span></label><br>
+                      <span id='slider13'></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh13' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 14-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 14 State:<span id='state14' ></span>
+                        <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='14' ><span class='slider'></span></label></p>
+                        <span id='slider14' ></span>
+                        <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh14' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 15-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 15 State:<span id='state15' ></span>
+                      <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='15' ><span class='slider'></span></label><br>
+                      <span id='slider15' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh15' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 16-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 16 State:<span id='state16' ></span>
+                    <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='16' ><span class='slider'></span></label><br>
+                    <span id='slider16' ></span>
+                    <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh16' min='2' max='100' step='1' value =''></label><br>
+                 </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 17-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 17 State:<span id='state17' ></span>
+                      <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='17' ><span class='slider'></span></label><br>
+                      <span id='slider17' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh17' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 18-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 18 State:<span id='state18' ></span>
+                      <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='18' ><span class='slider'></span></label><br>
+                      <span id='slider18' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh18' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 19-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 19 State:<span id='state19' ></span>
+                      <label class='switch'><input type='checkbox' value="" onclick='Pin_(this)' id='19' ><span class='slider'></span></label><br>
+                      <span id='slider19' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh19' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 21-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 21 State:<span id='state21' ></span>
+                    <label class='switch'><input type='checkbox' value="21" onclick='Pin_(this)' id='21'><span class='slider'></span></label><br>
+                    <span id='slider21' ></span>
+                    <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh21' min='2' max='100' step='1' value =''></label><br>
+                 </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 22-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 22 State:<span id='state22' ></span>
+                      <label class='switch'><input type='checkbox' value="22" onclick='Pin_(this)' id='22' ><span class='slider'></span></label><br>
+                      <span id='slider22' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh22' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 23-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 23 State:<span id='state23' ></span>
+                      <label class='switch'><input type='checkbox' value="23" onclick='Pin_(this)' id='23' ><span class='slider'></span></label><br>
+                      <span id='slider23' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh23' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 25-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 25 State:<span id='state25' ></span>
+                      <label class='switch'><input type='checkbox' value="25" onclick='Pin_(this)' id='25' ><span class='slider'></span></label><br>
+                      <span id='slider25' ></span>
+                      <label class='switch1'><input type='range' onchange='Pin_PWm(this)' id='thanh25' min='2' max='100' step='1' value =''></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 26-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 26 State:<span id='state26' value="" ></span>
+                      <label class='switch'><input type='checkbox' value="26" onclick='Pin_(this)' id='26' ><span class='slider'></span></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 27-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 27 State:<span id='state27' value="" ></span>
+                      <label class='switch'><input type='checkbox' value="27" onclick='Pin_(this)' id='27' ><span class='slider'></span></label><br>
+                    </p>
+                  </div>
+
+                  <!--CARD FOR GPIO 32-->
+                  <div class="card">
+                    <p class="card-title"> GPIO 32 State:<span id='state32' value="" ></span>
+                      <label class='switch'><input type='checkbox' value="32" onclick='Pin_(this)' id='32' ><span class='slider'></span></label><br>
+                    </p>
+                  </div>
+                  
+                  <!--CARD FOR GPIO 33 -->
+                  <div class="card">
+                    <p class="card-title"> GPIO 33 State:<span id='state33' value="" ></span>
+                      <label class='switch'><input type='checkbox' value="33" onclick='Pin_(this)' id='33' ><span class='slider'></span></label><br>
+                    </p>
+                  </div>
+              </div>
+          </div>
+          <br>
+          <!--TIMER FORM-->
+          <form action="" method="get">
+            <div class="topnav">
+                <h3 id="clock"></h3>
+                <label >Đặt Time Bật (ON):&nbsp;<input type="datetime-local" id="On" value=" "></label><br><br>
+                <label >Đặt Time Tắt (OFF):&nbsp;<input type="datetime-local" id="Off" value=" "></label><br><br>
+                <label for="loop_time">Bạn muốn set chân GPIO&nbsp? Đặt lặp lại cho ngày :&nbsp;</label> <input type="checkbox" id="loop_day" value="86400" ><br>
+                <label for="loop_time">Bạn muốn set chân GPIO&nbsp? Đặt lặp lại cho tuần :&nbsp;</label> <input type="checkbox" id="loop_week" value="604800" ><br>
+                <br>
+                <label for="Chon" style="color: rgb(8, 4, 247) ;">Chọn GPIO's:</label><input type="number" id="Click-button" min="0" max="33" style="width: 32px; color: rgb(8, 4, 247) ;"> 
+                <label for="Chon" style="color: rgb(8, 4, 247) ;">, Và Giá trị cho PWM:<input type="number" id="Value_PWM" min="2" max="100" style="width: 38px; color: rgb(8, 4, 247) ;">(%)</label><br>
+                <br>
+                <label for="Chon" style="color: rgb(40, 4, 247) ; ">Cho Lần Lặp Thứ:</label><input type="number" id="time_Set" min="1" style="width: 35px; ">&nbsp <br>
+                <br>
+                <button type="button" onclick="Set_Timer()" style="background-color: rgb(32, 223, 236) ;border-radius: 4px;">Thiết lập</button>
+                <br><br>
+            </div>
+          </form>
+          <br>
+       <a href="/" id="logout-link" >Đăng xuất-Logout</a><br>
+      </p>
+    </div>
+    <script src="js/19.03_Event5.js" async></script>
+    <script src="js/text_Lenh5.js" async></script>
+    <script src="js/set_Time9.js" async></script>
+    <script src="js/drone.js" async></script>
+
+      <script>
+        document.getElementById('ip_router').addEventListener('click', IP_address);
+          function IP_address() {
+            const uid =  localStorage.getItem("uid");
+            var path_dan = db.ref(uid + "/board_" + document.getElementById("level").value + "/outputs/STA_Ip" );
+                path_dan.once('value', function(shot) {
+                var data = shot.val();
+                document.getElementById("ip_router").value= "http://" + data;
+            });
+            return document.getElementById("ip_router").value;
+          }
+            /* Hủy đăng ký lắng nghe khi không cần thiết
+              path_dan.off('value');*/
+      </script>
+
+    <!--LOGIN FORM-->
+    <form id="login-form" style="display: none;">
+      <div class="form-elements-container">
+        <label for="input-email"><b>Email:</b></label>
+        <input type="text" placeholder="Enter Username" id="input-email" required>
+        <br> <br>
+        <label for="input-password"><b>Pass_:</b></label>
+        <input type="password" placeholder="Enter Password" id="input-password" required>
+        <br><br>
+        <button type="submit" id="login-button">Register /Login</button>
+        <p id="error-message" style="color:red;"></p>
+      </div>
+    </form>
+
+    <script src="auth/auth.js"></script>
+    <script src="auth/user.js"></script>
+  </body>
+</html>
