@@ -2,7 +2,7 @@ HƯỚNG DẪN KẾT NỐI - ĐIỀU KHIỂN TỰ ĐỘNG
 AU_CONTROL IoT 
 SMART HOME - BẤT CỨ NƠI NÀO TRÊN THẾ GIỚI
 
-Tải ứng dụng qua điện thoại của bạn. Vào thanh trình duyệt bất kỳ (google, chrom,…) gõ  chuổi ký tự https://aucontrol.web.app
+Tải ứng dụng qua điện thoại của bạn. Vào thanh trình duyệt bất kỳ (google, chrom,…) gõ  chuổi ký tự https://dkhien-auto-00001.firebaseapp.com
 Trên điện thoại Smartphone (hay trên desktop máy tính) của bạn với biểu tượng Icon đặt tên( Điều khiển… )bạn muốn.
 
 Để mở ứng dụng bạn cần tạo tài khoản. Việc Register ban đầu (đầutiên) là để đăng ký tài khoản. mỗi khách hàng đều được cấp 1 tài khoản và sẽ được mã hóa bảo mật một cách chắc chắn nên cực an tâm vấn đề riêng tư khi sử dụng. 
