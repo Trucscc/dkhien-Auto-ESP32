@@ -36,7 +36,7 @@ Sau quá trình nhập chính xác cho các ô nhập trạm phát sóng của n
 Ô Uid : Bạn gõ đúng từng ký tự một liên tục không có cách khoảng do phần mềm đăng ký App đã sinh ra gởi cho bạn ở bước 2.
 Ô cuối : định nghĩa thú tụ bo bạn kết nối trong hệ thống.
               Mỗi board có khả năng điều khiển dược 18 Relay tương úng với 18 thiết bị độc lập. Với trạng thái đóng mở giống công tắc điện thông thường.
-           Click  Au_Control App chính là vào lại ứng dụng App của trang WWW https://aucontrol.web.app/
+           Click  Au_Control App chính là vào lại ứng dụng App của trang WWW [https://aucontrol.web.app/](https://dkhien-auto-00001.firebaseapp.com/)
 
 Bước 4:
 Bước cuối cùng bạn gọi cho tôi,  theo số 0945582037.
